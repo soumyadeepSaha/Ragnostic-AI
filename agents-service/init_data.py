@@ -13,6 +13,17 @@ docs = [
     "Microservices architecture improves scalability.",
     "Kafka enables event-driven systems."
 ]
+def chunk_text(text, chunk_size=100):
+    return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+
+docs = [
+    "Long document about RAG and LLMs..."
+]
+
+chunks = []
+for doc in docs:
+    chunks.extend(chunk_text(doc))
+
 
 vector_store.create_index(docs)
 

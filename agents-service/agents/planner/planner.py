@@ -10,14 +10,22 @@ class Query(BaseModel):
 @router.post("/")
 def planner(q: Query):
     prompt = f"""
-    Decide whether the query needs external knowledge.
-    Answer ONLY 'RAG' or 'REASON'.
+    Decide how to answer the query.
+
+    Options:
+    - RAG (needs external knowledge)
+    - REASON (general reasoning)
+    - TOOL (calculation, database, or external action)
 
     Query: {q.query}
+
+    Answer ONLY one: RAG / REASON / TOOL
     """
 
     decision = generate(prompt)
 
-    if "RAG" in decision:
+    if "TOOL" in decision:
+        return {"action": "TOOL"}
+    elif "RAG" in decision:
         return {"action": "RAG"}
     return {"action": "REASON"}

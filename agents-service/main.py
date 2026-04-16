@@ -10,6 +10,7 @@ from agents.planner.planner import router as planner_router
 from agents.retrieval.retriever import router as retriever_router
 from agents.reasoning.reasoning import router as reasoning_router
 from agents.verifier.verifier import router as verifier_router
+from agents.tool.tool_agent import router as tool_router
 
 app = FastAPI(title="Ragnostic Agent Service")
 
@@ -17,6 +18,7 @@ app.include_router(retriever_router, prefix="/retrieve", tags=["retrieval"])
 app.include_router(planner_router, prefix="/planner", tags=["planner"])
 app.include_router(reasoning_router, prefix="/reason", tags=["reasoning"])
 app.include_router(verifier_router, prefix="/verify", tags=["verifier"])
+app.include_router(tool_router, prefix="/tool", tags=["tool"])
 
 
 @app.get("/")

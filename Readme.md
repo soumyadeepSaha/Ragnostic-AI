@@ -6881,3 +6881,11 @@ JSON
 Send:
 
 Click the purple Send button.
+
+
+
+--check whyisit used 
+Inside agents-service/:
+
+pip install faiss-cpu sentence-transformers
+
