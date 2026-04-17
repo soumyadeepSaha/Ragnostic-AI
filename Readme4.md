@@ -1,3 +1,4 @@
+
 🚀 PHASE 1: MCP + REST SWITCH (Complete this first)
 
 We’ll make this clean and testable
