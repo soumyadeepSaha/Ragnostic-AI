@@ -21,7 +21,7 @@ exports.handleQuery = async (query) => {
   });
 
   if (verify.data.status === "RETRY") {
-    const retry = await axios.post(`${PYTHON_BASE}/retrieve`, { query });
+    const retry = await axios.post(`${PYTHON_BASE}/retrieve/`, { query });
     return retry.data.answer;
   }
 

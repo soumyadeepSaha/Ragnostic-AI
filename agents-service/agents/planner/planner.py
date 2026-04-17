@@ -9,23 +9,24 @@ class Query(BaseModel):
 
 @router.post("/")
 def planner(q: Query):
-    prompt = f"""
-    Decide how to answer the query.
-
-    Options:
-    - RAG (needs external knowledge)
-    - REASON (general reasoning)
-    - TOOL (calculation, database, or external action)
-
-    Query: {q.query}
-
-    Answer ONLY one: RAG / REASON / TOOL
-    """
-
-    decision = generate(prompt)
-
-    if "TOOL" in decision:
+    # Check if query is asking for calculations
+    query_lower = q.query.lower()
+    if any(word in query_lower for word in ["calculate", "math", "+", "-", "*", "/", "add", "subtract", "multiply", "divide", "sum", "total"]):
         return {"action": "TOOL"}
-    elif "RAG" in decision:
+    
+    # Otherwise use reasoning for general knowledge questions
+    prompt = f"""Respond with ONLY one word: RAG or REASON
+
+Query: {q.query}
+
+RAG = needs external knowledge/documents
+REASON = general knowledge/reasoning
+"""
+
+    decision = generate(prompt).strip().upper()
+    
+    # Simple binary choice
+    if "RAG" in decision and "REASON" not in decision:
         return {"action": "RAG"}
-    return {"action": "REASON"}
+    else:
+        return {"action": "REASON"}
