@@ -1,0 +1,281 @@
+{
+  "info": {
+    "name": "Ragnostic AI - MCP vs REST Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔵 REST Mode Tests",
+      "item": [
+        {
+          "name": "1. Query (REST Mode)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What is 5 + 3?\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/query",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["query"]
+            }
+          }
+        },
+        {
+          "name": "2. Direct Planner (REST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Calculate 15 + 25\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/planner/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["planner", ""]
+            }
+          }
+        },
+        {
+          "name": "3. Direct Reason (REST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Explain photosynthesis\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/reason/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["reason", ""]
+            }
+          }
+        },
+        {
+          "name": "4. Direct Retrieve (REST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"machine learning basics\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/retrieve/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["retrieve", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🟢 MCP Mode Tests",
+      "item": [
+        {
+          "name": "1. Query (MCP Mode)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What is 5 + 3?\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/query",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["query"]
+            }
+          }
+        },
+        {
+          "name": "2. MCP Planner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"planner\",\n  \"input\": {\n    \"query\": \"What is machine learning?\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/mcp",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["mcp"]
+            }
+          }
+        },
+        {
+          "name": "3. MCP Reason",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"reason\",\n  \"input\": {\n    \"query\": \"Explain photosynthesis\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/mcp",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["mcp"]
+            }
+          }
+        },
+        {
+          "name": "4. MCP Retrieve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"retrieve\",\n  \"input\": {\n    \"query\": \"machine learning basics\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/mcp",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["mcp"]
+            }
+          }
+        },
+        {
+          "name": "5. MCP Verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"verify\",\n  \"input\": {\n    \"query\": \"Is this true?\",\n    \"response\": \"2 + 2 = 4\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/mcp",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["mcp"]
+            }
+          }
+        },
+        {
+          "name": "6. MCP Tool",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"tool\",\n  \"input\": {\n    \"query\": \"Calculate 100 / 5\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/mcp",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["mcp"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔍 System Info",
+      "item": [
+        {
+          "name": "Check OpenAPI Docs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/openapi.json",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["openapi.json"]
+            }
+          }
+        },
+        {
+          "name": "Health Check - Agents Service",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": [""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

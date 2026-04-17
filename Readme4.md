@@ -237,3 +237,23 @@ services/orchestrator.js
 config.js ✅ (new)
 
 
+
+✅ 3. Easy to extend
+
+Add new agent?
+
+actionMap.NEW_AGENT = "new_service";
+
+👉 Done.
+
+
+
+
+curl -X POST http://localhost:8000/mcp \
+-H "Content-Type: application/json" \
+-d '{
+  "action": "reason",
+  "input": {
+    "query": "Explain recursion"
+  }
+}'

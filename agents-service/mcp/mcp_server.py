@@ -16,11 +16,11 @@ class MCPRequest(BaseModel):
 
 # 🔥 Action Registry (extensible)
 ACTION_MAP = {
-    "planner": "/planner",
-    "retrieve": "/retrieve",
-    "reason": "/reason",
-    "verify": "/verify",
-    "tool": "/tool"
+    "planner": "/planner/",
+    "retrieve": "/retrieve/",
+    "reason": "/reason/",
+    "verify": "/verify/",
+    "tool": "/tool/"
 }
 
 
