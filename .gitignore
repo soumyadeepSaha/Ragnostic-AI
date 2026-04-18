@@ -77,3 +77,7 @@ setup_prometheus.ps1
 # Test and cache
 .pytest_cache/
 *.egg-info/
+
+# Diff documentation
+WhatsMakeYouDiff.md
+.WhatsMakeYouDiff/
