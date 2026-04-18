@@ -8,6 +8,11 @@ const {
   decisionCounter,
   retryCounter,
   latencyHistogram,
+   plannerLatency,
+  retrievalLatency,
+  reasoningLatency,
+  toolLatency,
+  verifierLatency,
 } = require("../metrics");
 
 // 🔹 Generic call wrapper (REST / MCP switch)
@@ -44,7 +49,9 @@ exports.handleQuery = async (query) => {
 
   try {
     // Step 1: Planner
+    const plannerTimer = plannerLatency.startTimer();
     const plan = await callService("planner", { query });
+    plannerTimer();
     const action = plan.action;
 
     // 🧠 Track decision
@@ -59,13 +66,29 @@ exports.handleQuery = async (query) => {
 
     const selectedAction = actionMap[action] || "reason";
 
-    const response = await callService(selectedAction, { query });
+let response;
+
+if (selectedAction === "retrieve") {
+  const t = retrievalLatency.startTimer();
+  response = await callService("retrieve", { query });
+  t();
+} else if (selectedAction === "reason") {
+  const t = reasoningLatency.startTimer();
+  response = await callService("reason", { query });
+  t();
+} else {
+  const t = toolLatency.startTimer();
+  response = await callService("tool", { query });
+  t();
+}
 
     // Step 3: Verify
-    const verify = await callService("verify", {
-      query,
-      answer: response.answer,
-    });
+  const verifyTimer = verifierLatency.startTimer();
+const verify = await callService("verify", {
+  query,
+  answer: response.answer,
+});
+verifyTimer();
 
     // Step 4: Retry logic
     if (verify.status === "RETRY") {
