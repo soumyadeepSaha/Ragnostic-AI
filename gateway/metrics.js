@@ -85,5 +85,8 @@ module.exports = {
   reasoningLatency,
   toolLatency,
   verifierLatency,
+<<<<<<< HEAD
   confidenceGauge,
+=======
+>>>>>>> main
 };

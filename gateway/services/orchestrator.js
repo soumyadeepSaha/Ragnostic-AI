@@ -13,7 +13,10 @@ const {
   reasoningLatency,
   toolLatency,
   verifierLatency,
+<<<<<<< HEAD
   confidenceGauge,  
+=======
+>>>>>>> main
 } = require("../metrics");
 
 // 🔹 Generic call wrapper (REST / MCP switch)
@@ -89,7 +92,9 @@ const verify = await callService("verify", {
   query,
   answer: response.answer,
 });
+
 confidenceGauge.set(verify.confidence|| 0.5);
+
 verifyTimer();
 
     // Step 4: Retry logic
