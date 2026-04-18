@@ -757,3 +757,58 @@ correctness
 🧩 STEP 4: Update Orchestrator (IMPORTANT)
 
 📁 orchestrator.js
+
+
+--lets start:-
+with multi-step planner
+
+“smart pipeline” → true multi-agent planner
+
+🧠 What you have now
+Planner → one decision → execute
+
+👉 Too shallow.
+
+lets upgrade to :
+Planner → multi-step plan → orchestrator executes step-by-step
+
+Planner → multi-step plan → orchestrator executes step-by-step
+
+
+-🧩 STEP 1: Upgrade Planner
+
+📁 agents/planner/planner.py
+
+plan
+🧩 STEP 2: Update Orchestrator (CORE CHANGE)
+
+📁 gateway/services/orchestrator.js
+
+🧩 STEP 3: Execute steps sequentially
+
+🧩 STEP 4: Update verifier input
+
+Now use:
+
+🟢 Multi-step query
+"Explain RAG with an example"
+
+Expected:
+
+retrieve → reason → reason
+
+and check
+
+🔴 Tool query
+"calculate 10 + 20"
+
+Expected:
+
+tool only
+
+🟡 Mixed query
+"Get info about Kafka and explain it"
+
+Expected:
+
+retrieve → reason
