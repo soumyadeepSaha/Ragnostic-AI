@@ -13,10 +13,7 @@ const {
   reasoningLatency,
   toolLatency,
   verifierLatency,
-<<<<<<< HEAD
   confidenceGauge,  
-=======
->>>>>>> main
 } = require("../metrics");
 
 // 🔹 Generic call wrapper (REST / MCP switch)
