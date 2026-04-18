@@ -13,6 +13,7 @@ const {
   reasoningLatency,
   toolLatency,
   verifierLatency,
+  confidenceGauge,  
 } = require("../metrics");
 
 // 🔹 Generic call wrapper (REST / MCP switch)
@@ -88,11 +89,14 @@ const verify = await callService("verify", {
   query,
   answer: response.answer,
 });
+confidenceGauge.set(verify.confidence|| 0.5);
 verifyTimer();
 
     // Step 4: Retry logic
-    if (verify.status === "RETRY") {
-      console.log("Retry triggered → falling back to RAG");
+    if (verify.status === "RETRY" || verify.confidence < 0.6) {
+       console.log(
+    `Retry triggered → confidence: ${verify.confidence}`
+  );
 
       // 🔁 Track retry
       retryCounter.inc();

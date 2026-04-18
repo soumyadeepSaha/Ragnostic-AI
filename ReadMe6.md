@@ -236,3 +236,48 @@ Here's a 6-line summary of what was accomplished:
 5. **Dashboard Live Update** - Grafana reconnected to Prometheus after URL fix and both panels now display live metric graphs with data from the generated requests
 
 6. **Full Stack Operational** - Monitoring pipeline complete: FastAPI agents service → Prometheus scraping metrics → Grafana displaying graphs with 30s auto-refresh
+
+
+
+
+---After Grafana we will move to Confidence-based + grounded + retry aware
+
+🧠 Why this matters
+
+Now your system:
+
+doesn’t blindly trust LLM
+evaluates output
+adapts dynamically
+
+👉 This is real GenAI system design
+
+
+🧩 STEP 1: Update verifier.py
+
+📁 File:
+
+agents-service/agents/verifier/verifier.py
+
+
+
+🧠 🚀 STEP: Self-Correction Loop (Auto-Fix Answers)
+
+Right now your system:
+
+Generate → Verify → Retry (fallback to RAG)
+
+👉 That’s reactive.
+
+🔥 Upgrade to:
+Generate → Verify → If weak → Improve → Re-verify → Return
+
+👉 This is self-improving AI behavior
+🧠 What we’ll build
+
+If confidence is low:
+
+👉 Instead of just retrying retrieval
+👉 We ask LLM:
+
+“Fix your previous answer”
