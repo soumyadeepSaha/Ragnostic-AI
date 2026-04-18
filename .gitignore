@@ -64,3 +64,16 @@ coverage.*
 *.temp
 *.swp
 *.swo
+
+# Downloaded binaries and archives
+grafana-v11.0.0/
+prometheus/
+*.zip
+
+# Setup/Installation scripts (system-specific)
+install_prometheus.bat
+setup_prometheus.ps1
+
+# Test and cache
+.pytest_cache/
+*.egg-info/

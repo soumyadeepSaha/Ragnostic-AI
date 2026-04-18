@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'ragnostic-ai'
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Gateway (Node.js Express)
+  - job_name: 'gateway'
+    static_configs:
+      - targets: ['localhost:3000']
+    metrics_path: '/metrics'
+
+  # Agents Service (FastAPI)
+  - job_name: 'agents-service'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/metrics'

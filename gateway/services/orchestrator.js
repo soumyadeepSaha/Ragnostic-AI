@@ -4,6 +4,12 @@ const { USE_MCP } = require("../config");
 const PYTHON_BASE = "http://localhost:8000";
 const MCP_URL = "http://localhost:8000/mcp";
 
+const {
+  decisionCounter,
+  retryCounter,
+  latencyHistogram,
+} = require("../metrics");
+
 // 🔹 Generic call wrapper (REST / MCP switch)
 async function callService(action, payload) {
   if (USE_MCP) {
@@ -11,7 +17,7 @@ async function callService(action, payload) {
       action,
       input: payload,
     });
-
+  
     return res.data.result;
   } else {
     const urlMap = {
@@ -30,12 +36,19 @@ async function callService(action, payload) {
     return res.data;
   }
 }
+
 // 🔹 Main orchestrator
 exports.handleQuery = async (query) => {
+  // ⏱️ Start latency timer
+  const end = latencyHistogram.startTimer();
+
   try {
     // Step 1: Planner
     const plan = await callService("planner", { query });
     const action = plan.action;
+
+    // 🧠 Track decision
+    decisionCounter.inc({ type: action });
 
     // Step 2: Execute based on action
     const actionMap = {
@@ -58,6 +71,9 @@ exports.handleQuery = async (query) => {
     if (verify.status === "RETRY") {
       console.log("Retry triggered → falling back to RAG");
 
+      // 🔁 Track retry
+      retryCounter.inc();
+
       const retry = await callService("retrieve", { query });
       return retry.answer;
     }
@@ -66,5 +82,8 @@ exports.handleQuery = async (query) => {
   } catch (error) {
     console.error("Orchestrator Error:", error.message);
     throw new Error("Failed to process query");
+  } finally {
+    // ⏱️ Stop latency timer
+    end();
   }
 };
