@@ -15,12 +15,18 @@ def parse_output(text: str):
     """
     Extract STATUS, CONFIDENCE, REASON safely
     """
+
     status_match = re.search(r"STATUS:\s*(OK|RETRY)", text, re.IGNORECASE)
-    conf_match = re.search(r"CONFIDENCE:\s*(0\.\d+|1\.0)", text)
-    reason_match = re.search(r"REASON:\s*(.*)", text, re.IGNORECASE)
+    conf_match = re.search(r"CONFIDENCE:\s*(0(?:\.\d+)?|1(?:\.0)?)", text)
+    reason_match = re.search(r"REASON:\s*(.*)", text, re.IGNORECASE | re.DOTALL)
 
     status = status_match.group(1).upper() if status_match else "RETRY"
-    confidence = float(conf_match.group(1)) if conf_match else 0.5
+
+    try:
+        confidence = float(conf_match.group(1)) if conf_match else 0.5
+    except:
+        confidence = 0.5
+
     reason = reason_match.group(1).strip() if reason_match else "No reason provided"
 
     return status, confidence, reason
@@ -29,53 +35,47 @@ def parse_output(text: str):
 @router.post("/")
 def verify(v: VerifyInput):
 
-    # 🔥 Different behavior based on context availability
-    if v.context.strip():
-        # 🟢 Grounded verification (RAG case)
-        prompt = f"""
-You are a strict evaluator.
+    has_context = bool(v.context and v.context.strip())
+
+    # 🔥 STRONGER PROMPT (grounded + strict)
+    prompt = f"""
+You are a STRICT AI evaluator.
 
 Question:
 {v.query}
 
 Answer:
 {v.answer}
+"""
+
+    if has_context:
+        prompt += f"""
 
 Context:
 {v.context}
 
-Tasks:
-1. Is the answer supported by the context?
-2. Does it include hallucinations beyond the context?
-3. Is it logically consistent?
-
-IMPORTANT:
-- If answer contains information NOT in context → RETRY
-- If answer contradicts context → RETRY
-
-Respond STRICTLY:
-
-STATUS: OK or RETRY
-CONFIDENCE: number between 0 and 1
-REASON: short explanation
+STRICT RULES:
+- The answer MUST be supported by the context
+- If ANY part of the answer is not in the context → RETRY
+- If the answer adds extra facts not in context → RETRY
+- If the answer contradicts the context → RETRY
 """
     else:
-        # 🟡 No context (reasoning/tool case)
-        prompt = f"""
-You are a strict evaluator.
+        prompt += """
 
-Question:
-{v.query}
+STRICT RULES:
+- The answer must be logically correct
+- The answer must be relevant to the question
+"""
 
-Answer:
-{v.answer}
+    prompt += """
 
-Tasks:
-1. Is the answer correct?
-2. Is it relevant?
-3. Is it logically consistent?
+Evaluate:
+1. Correctness
+2. Relevance
+3. Logical consistency
 
-Respond STRICTLY:
+Respond EXACTLY in this format:
 
 STATUS: OK or RETRY
 CONFIDENCE: number between 0 and 1
@@ -85,6 +85,10 @@ REASON: short explanation
     result = generate(prompt)
 
     status, confidence, reason = parse_output(result)
+
+    # 🔥 Extra safety: enforce stricter grounding penalty
+    if has_context and confidence < 0.4:
+        status = "RETRY"
 
     return {
         "status": status,
