@@ -58,7 +58,13 @@ const verifierLatency = new client.Histogram({
   buckets: [0.05, 0.1, 0.3, 1],
 });
 
+const confidenceGauge = new client.Gauge({
+  name: "ragnostic_confidence_score",
+  help: "Confidence score of responses",
+});
+
 // Register all
+register.registerMetric(confidenceGauge);
 register.registerMetric(requestCounter);
 register.registerMetric(decisionCounter);
 register.registerMetric(retryCounter);
@@ -79,4 +85,8 @@ module.exports = {
   reasoningLatency,
   toolLatency,
   verifierLatency,
+<<<<<<< HEAD
+  confidenceGauge,
+=======
+>>>>>>> main
 };

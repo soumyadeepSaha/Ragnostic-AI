@@ -20,7 +20,8 @@ ACTION_MAP = {
     "retrieve": "/retrieve/",
     "reason": "/reason/",
     "verify": "/verify/",
-    "tool": "/tool/"
+    "tool": "/tool/",
+    "improve": "/improve",
 }
 
 

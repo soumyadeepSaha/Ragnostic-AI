@@ -236,3 +236,104 @@ Here's a 6-line summary of what was accomplished:
 5. **Dashboard Live Update** - Grafana reconnected to Prometheus after URL fix and both panels now display live metric graphs with data from the generated requests
 
 6. **Full Stack Operational** - Monitoring pipeline complete: FastAPI agents service → Prometheus scraping metrics → Grafana displaying graphs with 30s auto-refresh
+
+
+
+
+---After Grafana we will move to Confidence-based + grounded + retry aware
+
+🧠 Why this matters
+
+Now your system:
+
+doesn’t blindly trust LLM
+evaluates output
+adapts dynamically
+
+👉 This is real GenAI system design
+
+
+🧩 STEP 1: Update verifier.py
+
+📁 File:
+
+agents-service/agents/verifier/verifier.py
+
+
+
+🧠 🚀 STEP: Self-Correction Loop (Auto-Fix Answers)
+
+Right now your system:
+
+Generate → Verify → Retry (fallback to RAG)
+
+👉 That’s reactive.
+
+🔥 Upgrade to:
+Generate → Verify → If weak → Improve → Re-verify → Return
+
+👉 This is self-improving AI behavior
+🧠 What we’ll build
+
+If confidence is low:
+
+👉 Instead of just retrying retrieval
+👉 We ask LLM:
+
+“Fix your previous answer”
+
+
+🧠 🚀 STEP: Self-Correction Loop (Auto-Fix Answers)
+
+Right now your system:
+
+Generate → Verify → Retry (fallback to RAG)
+
+👉 That’s reactive.
+
+🔥 Upgrade to:
+Generate → Verify → If weak → Improve → Re-verify → Return
+
+👉 This is self-improving AI behavior
+
+🧠 What we’ll build
+
+If confidence is low:
+
+👉 Instead of just retrying retrieval
+👉 We ask LLM:
+
+“Fix your previous answer”
+
+🧩 STEP 1: Add Improvement Agent
+
+📁 Create new file:
+
+agents-service/agents/improver/improver.py
+
+🧩 STEP 2: Register it
+
+📁 main.py
+
+🧩 STEP 3: Update MCP (IMPORTANT)
+
+📁 mcp_server.py
+
+Add:
+
+"improve": "/improve",
+
+
+🔥 Option 1: Grounded Verification (HIGH VALUE)
+
+👉 Check answer against retrieved context
+👉 Prevent hallucination properly
+
+🔥 Option 2: Multi-step Planning
+
+👉 Planner outputs steps instead of single action
+👉 True agent behavior
+
+these are my next 2 steps after that kafka
+
+the
