@@ -8,6 +8,7 @@ router = APIRouter()
 class VerifyInput(BaseModel):
     query: str
     answer: str
+    context: str = ""
 
 
 def parse_output(text: str):
@@ -27,20 +28,54 @@ def parse_output(text: str):
 
 @router.post("/")
 def verify(v: VerifyInput):
-    prompt = f"""
+
+    # 🔥 Different behavior based on context availability
+    if v.context.strip():
+        # 🟢 Grounded verification (RAG case)
+        prompt = f"""
 You are a strict evaluator.
 
-Evaluate the answer quality.
+Question:
+{v.query}
 
-Question: {v.query}
-Answer: {v.answer}
+Answer:
+{v.answer}
 
-Criteria:
-- Correctness
-- Relevance
-- Logical consistency
+Context:
+{v.context}
 
-Respond STRICTLY in this format:
+Tasks:
+1. Is the answer supported by the context?
+2. Does it include hallucinations beyond the context?
+3. Is it logically consistent?
+
+IMPORTANT:
+- If answer contains information NOT in context → RETRY
+- If answer contradicts context → RETRY
+
+Respond STRICTLY:
+
+STATUS: OK or RETRY
+CONFIDENCE: number between 0 and 1
+REASON: short explanation
+"""
+    else:
+        # 🟡 No context (reasoning/tool case)
+        prompt = f"""
+You are a strict evaluator.
+
+Question:
+{v.query}
+
+Answer:
+{v.answer}
+
+Tasks:
+1. Is the answer correct?
+2. Is it relevant?
+3. Is it logically consistent?
+
+Respond STRICTLY:
 
 STATUS: OK or RETRY
 CONFIDENCE: number between 0 and 1

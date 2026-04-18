@@ -336,4 +336,424 @@ Add:
 
 these are my next 2 steps after that kafka
 
-the
+👉 Grounded verification → Multi-step planning → Kafka
+
+🧠 🔥 WHAT IS GROUNDED VERIFICATION
+
+Right now your verifier checks:
+
+Is answer correct? ❌ (generic)
+
+We upgrade to:
+
+Is answer grounded in retrieved context? ✅
+
+👉 This reduces hallucination significantly
+
+🚀 TARGET FLOW
+Query → RAG → Answer + Context
+              ↓
+         Verifier checks:
+         "Does answer match context?"
+
+   
+Good—you’re paying attention to integration details 👍
+“Step 3: Update MCP” is exactly where people usually get confused.
+
+Let’s make it crystal clear.
+
+🧠 What is Step 3 doing?
+You added a new agent:
+
+/improve
+👉 MCP must know how to route to it
+
+📁 Where to do Step 3
+👉 File:
+
+agents-service/mcp/mcp_server.py
+🧩 What your file currently has
+You should already have something like:
+
+ACTION_MAP = {
+    "planner": "/planner",
+    "retrieve": "/retrieve",
+    "reason": "/reason",
+    "verify": "/verify",
+    "tool": "/tool"
+}
+🔥 What you need to ADD
+👉 Just add ONE line:
+
+"improve": "/improve",
+✅ Final ACTION_MAP
+ACTION_MAP = {
+    "planner": "/planner",
+    "retrieve": "/retrieve",
+    "reason": "/reason",
+    "verify": "/verify",
+    "tool": "/tool",
+    "improve": "/improve",   # 🔥 ADD THIS
+}
+⚠️ VERY IMPORTANT
+Your improver route is:
+@router.post("/improve")
+So MCP must call:
+
+http://localhost:8000/improve
+👉 That’s why mapping is:
+
+"improve": "/improve"
+🧪 How to verify it works
+Test MCP directly:
+
+curl -X POST http://localhost:8000/mcp \
+-H "Content-Type: application/json" \
+-d '{
+  "action": "improve",
+  "input": {
+    "query": "What is RAG?",
+    "answer": "Some weak answer",
+    "feedback": "Not detailed"
+  }
+}'
+✅ Expected response
+{
+  "action": "improve",
+  "result": {
+    "answer": "Improved answer..."
+  }
+}
+🧠 Mental model (important)
+👉 MCP = router
+
+Action → Endpoint
+Action	Endpoint
+planner	/planner
+retrieve	/retrieve
+improve	/improve
+🏆 What you just did
+You made your system:
+
+👉 extensible
+
+Now adding new agents = just:
+
+create file
+
+register in main.py
+
+add to MCP
+
+🚀 Next step
+After this:
+
+👉 Restart everything:
+
+uvicorn main:app --reload
+node server.js
+Then test full flow.
+
+🎯 Tell me next
+👉 “Self-correction working”
+
+We’ll go to:
+
+👉 Grounded verification (checking against RAG context) 🔥
+👉 or
+👉 Multi-step planning (true agent orchestration)
+
+
+const axios = require("axios");
+const { USE_MCP } = require("../config");
+
+const PYTHON_BASE = "http://localhost:8000";
+const MCP_URL = "http://localhost:8000/mcp";
+
+const {
+  decisionCounter,
+  retryCounter,
+  latencyHistogram,
+   plannerLatency,
+  retrievalLatency,
+  reasoningLatency,
+  toolLatency,
+  verifierLatency,
+  confidenceGauge,  
+} = require("../metrics");
+
+// 🔹 Generic call wrapper (REST / MCP switch)
+async function callService(action, payload) {
+  if (USE_MCP) {
+    const res = await axios.post(MCP_URL, {
+      action,
+      input: payload,
+    });
+  
+    return res.data.result;
+  } else {
+    const urlMap = {
+      planner: "/planner/",
+      retrieve: "/retrieve/",
+      reason: "/reason/",
+      verify: "/verify/",
+      tool: "/tool/",
+    };
+
+    const res = await axios.post(
+      ${PYTHON_BASE}${urlMap[action]},
+      payload
+    );
+
+    return res.data;
+  }
+}
+
+// 🔹 Main orchestrator
+exports.handleQuery = async (query) => {
+  // ⏱️ Start latency timer
+  const end = latencyHistogram.startTimer();
+
+  try {
+    // Step 1: Planner
+    const plannerTimer = plannerLatency.startTimer();
+    const plan = await callService("planner", { query });
+    plannerTimer();
+    const action = plan.action;
+
+    // 🧠 Track decision
+    decisionCounter.inc({ type: action });
+
+    // Step 2: Execute based on action
+    const actionMap = {
+      RAG: "retrieve",
+      REASON: "reason",
+      TOOL: "tool",
+    };
+
+    const selectedAction = actionMap[action] || "reason";
+
+let response;
+
+if (selectedAction === "retrieve") {
+  const t = retrievalLatency.startTimer();
+  response = await callService("retrieve", { query });
+  t();
+} else if (selectedAction === "reason") {
+  const t = reasoningLatency.startTimer();
+  response = await callService("reason", { query });
+  t();
+} else {
+  const t = toolLatency.startTimer();
+  response = await callService("tool", { query });
+  t();
+}
+
+    // Step 3: Verify
+  const verifyTimer = verifierLatency.startTimer();
+const verify = await callService("verify", {
+  query,
+  answer: response.answer,
+});
+confidenceGauge.set(verify.confidence|| 0.5);
+verifyTimer();
+
+    // Step 4: Retry logic
+    if (verify.status === "RETRY" || verify.confidence < 0.6) {
+       console.log(
+    Retry triggered → confidence: ${verify.confidence}
+  );
+
+      // 🔁 Track retry
+      retryCounter.inc();
+
+      const retry = await callService("retrieve", { query });
+      return retry.answer;
+    }
+
+    return verify.final_answer;
+  } catch (error) {
+    console.error("Orchestrator Error:", error.message);
+    throw new Error("Failed to process query");
+  } finally {
+    // ⏱️ Stop latency timer
+    end();
+  }
+};
+
+this is my current orchestrator code what do you want me to build now
+
+Good—this is a solid v2 orchestrator, but right now you’re still doing:
+
+👉 verify → fallback to RAG
+
+You haven’t integrated the self-correction loop yet (the improver agent).
+
+So the next step is:
+
+🚀 🔥 Upgrade THIS orchestrator → Self-Correcting Agent
+We’ll change ONLY the retry block (not everything).
+
+🧠 What you currently do
+Low confidence → directly call RAG
+🧠 What we will do
+Low confidence → Improve → Re-verify → Choose best → else fallback
+🧩 🔥 EXACT CHANGE YOU NEED
+📍 Find this block in your code:
+if (verify.status === "RETRY" || verify.confidence < 0.6) {
+  console.log(
+    `Retry triggered → confidence: ${verify.confidence}`
+  );
+
+  retryCounter.inc();
+
+  const retry = await callService("retrieve", { query });
+  return retry.answer;
+}
+🚀 🔥 REPLACE it with THIS:
+if (verify.status === "RETRY" || verify.confidence < 0.6) {
+  console.log(
+    `Low confidence (${verify.confidence}) → attempting self-correction`
+  );
+
+  retryCounter.inc();
+
+  // 🔥 Step 1: Improve answer
+  const improved = await callService("improve", {
+    query,
+    answer: response.answer,
+    feedback: verify.reason,
+  });
+
+  // 🔥 Step 2: Re-verify improved answer
+  const reverifyTimer = verifierLatency.startTimer();
+  const reverify = await callService("verify", {
+    query,
+    answer: improved.answer,
+  });
+  reverifyTimer();
+
+  // Track improved confidence
+  confidenceGauge.set(reverify.confidence || 0.5);
+
+  // 🔥 Step 3: Choose better answer
+  if (reverify.confidence > verify.confidence) {
+    console.log("Improved answer accepted");
+    return improved.answer;
+  } else {
+    console.log("Improvement failed → fallback to RAG");
+
+    const retry = await callService("retrieve", { query });
+    return retry.answer;
+  }
+}
+⚠️ IMPORTANT CHECKS (before running)
+Make sure you already have:
+
+✅ 1. Improver agent
+agents/improver/improver.py
+✅ 2. Registered in FastAPI
+app.include_router(improver_router)
+✅ 3. Added in MCP
+"improve": "/improve"
+🧪 TEST FLOW (VERY IMPORTANT)
+🔴 Case: Weak answer
+"Explain something unclear"
+Expected logs:
+
+Low confidence → attempting self-correction
+Improved answer accepted
+🟡 Case: Improvement fails
+Improvement failed → fallback to RAG
+🟢 Case: Good answer
+No correction triggered
+
+🧠 What you just built
+👉 Your system is now:
+
+Capability	Status
+Multi-agent	✅
+Self-evaluation	✅
+Self-correction	🔥
+Adaptive fallback	🔥
+🏆 This is BIG
+You now have:
+
+🔥 Self-improving AI system
+
+Very few projects go this far.
+
+🚀 NEXT STEP (choose carefully)
+Now you have 2 strong directions:
+
+🔥 Option 1: Grounded Verification (HIGH VALUE)
+👉 Check answer against retrieved context
+👉 Prevent hallucination properly
+
+🔥 Option 2: Multi-step Planning
+👉 Planner outputs steps instead of single action
+👉 True agent behavior
+
+🎯 My recommendation
+👉 Go next with:
+
+“Grounded verification”
+
+Because:
+
+improves correctness
+
+pairs perfectly with RAG
+
+looks very strong in interviews
+
+👉 Tell me:
+👉 “Add grounded verification”
+
+and I’ll guide you step-by-step like we did here 🚀
+
+
+lets start with adding grounded verification and then multi step planning and then kafa
+
+Perfect—that’s the right sequence 👇
+👉 Grounded verification → Multi-step planning → Kafka
+
+Let’s do this cleanly, step-by-step like before.
+
+🧠 🔥 WHAT IS GROUNDED VERIFICATION
+Right now your verifier checks:
+
+Is answer correct? ❌ (generic)
+We upgrade to:
+
+Is answer grounded in retrieved context? ✅
+👉 This reduces hallucination significantly
+
+🚀 TARGET FLOW
+Query → RAG → Answer + Context
+              ↓
+         Verifier checks:
+         "Does answer match context?"
+🧩 STEP 1: Modify Retriever
+📁 agents/retrieval/retriever.py
+
+🧠 Why?
+
+👉 Verifier needs context to check grounding
+🧩 STEP 2: Update Verifier Input
+
+📁 agents/verifier/verifier.py
+
+🧩 STEP 3: Update Verifier Prompt
+
+Replace prompt with:
+🧠 Key upgrade
+
+Now verifier checks:
+
+grounding
+hallucination
+correctness
+🧩 STEP 4: Update Orchestrator (IMPORTANT)
+
+📁 orchestrator.js

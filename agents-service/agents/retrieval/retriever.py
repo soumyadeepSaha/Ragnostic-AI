@@ -28,4 +28,5 @@ def retrieve(q: Query):
 
     answer = generate(prompt)
 
-    return {"answer": answer}
+    return {"answer": answer,
+            "context": context }

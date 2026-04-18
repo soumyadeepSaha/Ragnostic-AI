@@ -88,6 +88,7 @@ if (selectedAction === "retrieve") {
 const verify = await callService("verify", {
   query,
   answer: response.answer,
+  context: response.context || "",
 });
 
 confidenceGauge.set(verify.confidence|| 0.5);
