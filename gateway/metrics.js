@@ -86,5 +86,4 @@ module.exports = {
   toolLatency,
   verifierLatency,
   confidenceGauge,
-
 };
