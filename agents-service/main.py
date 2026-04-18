@@ -15,7 +15,7 @@ from agents.reasoning.reasoning import router as reasoning_router
 from agents.verifier.verifier import router as verifier_router
 from agents.tool.tool_agent import router as tool_router
 from mcp.mcp_server import router as mcp_router
-
+from agents.improver.improver import router as improver_router
 app = FastAPI(title="Ragnostic Agent Service")
 
 # Prometheus Metrics
@@ -39,6 +39,8 @@ app.include_router(reasoning_router, prefix="/reason", tags=["reasoning"])
 app.include_router(verifier_router, prefix="/verify", tags=["verifier"])
 app.include_router(tool_router, prefix="/tool", tags=["tool"])
 app.include_router(mcp_router)
+
+app.include_router(improver_router)
 
 @app.get("/")
 def root():

@@ -281,3 +281,59 @@ If confidence is low:
 👉 We ask LLM:
 
 “Fix your previous answer”
+
+
+🧠 🚀 STEP: Self-Correction Loop (Auto-Fix Answers)
+
+Right now your system:
+
+Generate → Verify → Retry (fallback to RAG)
+
+👉 That’s reactive.
+
+🔥 Upgrade to:
+Generate → Verify → If weak → Improve → Re-verify → Return
+
+👉 This is self-improving AI behavior
+
+🧠 What we’ll build
+
+If confidence is low:
+
+👉 Instead of just retrying retrieval
+👉 We ask LLM:
+
+“Fix your previous answer”
+
+🧩 STEP 1: Add Improvement Agent
+
+📁 Create new file:
+
+agents-service/agents/improver/improver.py
+
+🧩 STEP 2: Register it
+
+📁 main.py
+
+🧩 STEP 3: Update MCP (IMPORTANT)
+
+📁 mcp_server.py
+
+Add:
+
+"improve": "/improve",
+
+
+🔥 Option 1: Grounded Verification (HIGH VALUE)
+
+👉 Check answer against retrieved context
+👉 Prevent hallucination properly
+
+🔥 Option 2: Multi-step Planning
+
+👉 Planner outputs steps instead of single action
+👉 True agent behavior
+
+these are my next 2 steps after that kafka
+
+the

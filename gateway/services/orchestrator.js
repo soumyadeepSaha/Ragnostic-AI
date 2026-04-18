@@ -93,18 +93,42 @@ confidenceGauge.set(verify.confidence|| 0.5);
 verifyTimer();
 
     // Step 4: Retry logic
-    if (verify.status === "RETRY" || verify.confidence < 0.6) {
-       console.log(
-    `Retry triggered → confidence: ${verify.confidence}`
+ if (verify.status === "RETRY" || verify.confidence < 0.6) {
+  console.log(
+    `Low confidence (${verify.confidence}) → attempting self-correction`
   );
 
-      // 🔁 Track retry
-      retryCounter.inc();
+  retryCounter.inc();
 
-      const retry = await callService("retrieve", { query });
-      return retry.answer;
-    }
+  // 🔥 Step 1: Improve answer
+  const improved = await callService("improve", {
+    query,
+    answer: response.answer,
+    feedback: verify.reason,
+  });
 
+  // 🔥 Step 2: Re-verify improved answer
+  const reverifyTimer = verifierLatency.startTimer();
+  const reverify = await callService("verify", {
+    query,
+    answer: improved.answer,
+  });
+  reverifyTimer();
+
+  // Track improved confidence
+  confidenceGauge.set(reverify.confidence || 0.5);
+
+  // 🔥 Step 3: Choose better answer
+  if (reverify.confidence > verify.confidence) {
+    console.log("Improved answer accepted");
+    return improved.answer;
+  } else {
+    console.log("Improvement failed → fallback to RAG");
+
+    const retry = await callService("retrieve", { query });
+    return retry.answer;
+  }
+}
     return verify.final_answer;
   } catch (error) {
     console.error("Orchestrator Error:", error.message);
