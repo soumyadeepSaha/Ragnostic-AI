@@ -1,6 +1,5 @@
 # 🚀 ThunderClient Testing - Complete Setup Guide
 
-## 📦 What You Have Now
 
 ### Files Created for Testing:
 
