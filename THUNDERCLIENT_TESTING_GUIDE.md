@@ -201,3 +201,5 @@ module.exports = {
 - Always goes through action dispatcher
 - Standardized request/response format
 - Better for protocol standardization
+
+-better writes
